@@ -23,7 +23,7 @@ def send_message(text):
 def main():
     german_tz = pytz.timezone("Europe/Berlin")
     now = datetime.now(german_tz)
-    three_hours_ago = now - timedelta(hours=3)  # Get the current date in UTC timezone
+    three_hours_ago = now - timedelta(hours=9)  # Get the current date in UTC timezone
     for rss_feed_url in RSS_FEED_URLS:
         if hasattr(ssl, '_create_unverified_context'):
             ssl._create_default_https_context = ssl._create_unverified_context
