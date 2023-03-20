@@ -2,7 +2,8 @@
 name: Run Python Script each 3rd hour
 
 on:
-  - push
+  schedule:
+    - cron: "0 */1 * * *"
 
 permissions:
   contents: read
