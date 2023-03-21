@@ -58,14 +58,14 @@ def send_photo_message(link, text):
 def main():
     german_tz = pytz.timezone("Europe/Berlin")
     now = datetime.now(german_tz)
-    three_hours_ago = now - timedelta(hours=24)
+    three_hours_ago = now - timedelta(hours=1)
     for rss_feed_url in RSS_FEED_URLS:
         if hasattr(ssl, '_create_unverified_context'):
             ssl._create_default_https_context = ssl._create_unverified_context
             feed = feedparser.parse(rss_feed_url)
         last_3_hours_entries = [
             entry for entry in feed.entries if
-            three_hours_ago <= datetime(*entry.updated_parsed[:6],tzinfo=pytz.utc).astimezone(german_tz) <= now
+            three_hours_ago <= datetime(*entry.published_parsed[:6],tzinfo=pytz.utc).astimezone(german_tz) <= now
         ]
         for entry in last_3_hours_entries:
             link = entry.link
