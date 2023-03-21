@@ -24,6 +24,7 @@ jobs:
         python -m pip install pytz
         python -m pip install requests
         python -m pip install feedparser
+        python -m pip install beautifulsoup4
         
         
     - name: Run Telegram RSS Feed
