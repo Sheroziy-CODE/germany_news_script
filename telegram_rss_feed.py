@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import pytz
 import sys
 
-FEED_URLS="https://www.berlin.de/en/news/rubric.rss,https://feeds.thelocal.com/rss/de,https://20prozent.substack.com/feed/,https://warnung.bund.de/api31/mowas/rss/110000000000.rss,https://allaboutberlin.com/guides/feed.rss"
+FEED_URLS="https://www.berlin.de/en/news/rubric.rss,https://feeds.thelocal.com/rss/de,https://20prozent.substack.com/feed/,https://warnung.bund.de/api31/mowas/rss/110000000000.rss,https://allaboutberlin.com/guides/feed.rss,https://rss.dw.com/rdf/rss-en-ger"
 
 TELEGRAM_BOT_TOKEN = sys.argv[1]
 TELEGRAM_CHANNEL_ID = sys.argv[2]
