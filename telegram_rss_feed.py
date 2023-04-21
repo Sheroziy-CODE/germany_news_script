@@ -3,8 +3,12 @@ import requests
 import ssl
 import pytz
 import sys
+import time
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 FEED_URLS="https://www.berlin.de/en/news/rubric.rss," \
           "https://feeds.thelocal.com/rss/de," \
@@ -17,6 +21,8 @@ TELEGRAM_BOT_TOKEN = sys.argv[1]
 TELEGRAM_CHANNEL_ID = sys.argv[2]
 RSS_FEED_URLS = FEED_URLS.split(',')
 
+DELAY_BETWEEN_REQUESTS = 2  # in seconds
+
 
 def extract_image_url(message, url):
     try:
@@ -26,7 +32,7 @@ def extract_image_url(message, url):
         response = requests.get(url, headers=headers)
         response.raise_for_status()
     except requests.RequestException as e:
-        print(f"Error fetching the URL: {e}")
+        logging.error(f"Error fetching the URL: {e}")
         return None
 
     soup = BeautifulSoup(response.text, "html.parser")
@@ -38,9 +44,9 @@ def extract_image_url(message, url):
 
     try:
         send_photo_message(image_url, message)
-        print(f"Image URL: {image_url}")
-    except requests.RequestException as e:\
-        print(f"Error fetching the URL: {e}")
+        logging.info(f"Image URL: {image_url}")
+    except requests.RequestException as e:
+        logging.error(f"Error fetching the URL: {e}")
     return None
 
 
@@ -50,33 +56,53 @@ def send_photo_message(link, text):
                                                                                                           "photo": link,
                                                                                                           "caption": text})
     if photo_message_response.status_code == 200:
-        print("News Sent Success")
+        logging.info("News Sent Successfully")
     else:
-        print(photo_message_response.text)
+        logging.error(photo_message_response.text)
+
+
+def get_feed_entries(rss_feed_url):
+    if hasattr(ssl, '_create_unverified_context'):
+        ssl._create_default_https_context = ssl._create_unverified_context
+    return feedparser.parse(rss_feed_url).entries
+
+
+def filter_entries(last_hour_entries):
+    deduplicated_entries = []
+    seen_links = set()
+    for entry in last_hour_entries:
+        if entry.link not in seen_links:
+            deduplicated_entries.append(entry)
+            seen_links.add(entry.link)
+    return deduplicated_entries
 
 
 def main():
     german_tz = pytz.timezone("Europe/Berlin")
     now = datetime.now(german_tz)
-    three_hours_ago = now - timedelta(hours=1)
+    one_hour_ago = now - timedelta(hours=1)
+
+    last_hour_entries = []
+
     for rss_feed_url in RSS_FEED_URLS:
-        if hasattr(ssl, '_create_unverified_context'):
-            ssl._create_default_https_context = ssl._create_unverified_context
-            feed = feedparser.parse(rss_feed_url)
-        last_3_hours_entries = [
-            entry for entry in feed.entries if
-            three_hours_ago <= datetime(*entry.published_parsed[:6],tzinfo=pytz.utc).astimezone(german_tz) <= now
-        ]
-        for entry in last_3_hours_entries:
-            link = entry.link
-            title = entry.title
-            description = entry.description
-            source = link.split('/')[2]
-            message = f"<strong>{title}</strong>\n" \
-                      f"\n{description}" \
-                      f"\n\nSource: {source}" \
-                      f"\n\n<a href='{link}'>READ HERE</a>"
-            extract_image_url(message, link)
+        last_hour_entries.extend(get_feed_entries(rss_feed_url))
+
+    last_hour_entries = [entry for entry in last_hour_entries if
+                         one_hour_ago <= datetime(*entry.published_parsed[:6], tzinfo=pytz.utc).astimezone(german_tz) <= now]
+
+    last_hour_entries = filter_entries(last_hour_entries)
+
+    for entry in last_hour_entries:
+        link = entry.link
+        title = entry.title
+        description = entry.description
+        source = link.split('/')[2]
+        message = f"<strong>{title}</strong>\n" \
+                  f"\n{description}" \
+                  f"\n\nSource: {source}" \
+                  f"\n\n<a href='{link}'>READ HERE</a>"
+        extract_image_url(message, link)
+        time.sleep(DELAY_BETWEEN_REQUESTS)
 
 if __name__ == "__main__":
     main()
