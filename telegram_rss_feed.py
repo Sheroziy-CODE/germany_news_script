@@ -15,7 +15,8 @@ FEED_URLS="https://www.berlin.de/en/news/rubric.rss," \
           "https://20prozent.substack.com/feed/," \
           "https://warnung.bund.de/api31/mowas/rss/110000000000.rss," \
           "https://allaboutberlin.com/guides/feed.rss," \
-          "https://rss.dw.com/atom/rss-en-ger"
+          "https://rss.dw.com/atom/rss-en-ger," \
+          "https://www.deutschland.de/en/feed-news/rss.xml"
 
 TELEGRAM_BOT_TOKEN = sys.argv[1]
 TELEGRAM_CHANNEL_ID = sys.argv[2]
