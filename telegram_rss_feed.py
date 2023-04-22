@@ -71,10 +71,12 @@ def get_feed_entries(rss_feed_url):
 def filter_entries(last_hour_entries):
     deduplicated_entries = []
     seen_links = set()
+    seen_titles = set()
     for entry in last_hour_entries:
-        if entry.link not in seen_links:
+        if entry.link not in seen_links and entry.title not in seen_titles:
             deduplicated_entries.append(entry)
             seen_links.add(entry.link)
+            seen_titles.add(entry.title)
     return deduplicated_entries
 
 
