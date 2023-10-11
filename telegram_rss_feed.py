@@ -7,6 +7,12 @@ import time
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 import logging
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+# Initialize Firebase
+cred = credentials.Certificate('german-news-script-firebase-adminsdk.json')
+firebase_admin.initialize_app(cred)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -19,7 +25,7 @@ FEED_URLS="https://www.berlin.de/en/news/rubric.rss," \
           "https://www.deutschland.de/en/feed-news/rss.xml"
 
 TELEGRAM_BOT_TOKEN = sys.argv[1]
-TELEGRAM_CHANNEL_ID = sys.argv[2]
+TELEGRAM_CHANNEL_ID = "@sheroziy_test"
 RSS_FEED_URLS = FEED_URLS.split(',')
 
 DELAY_BETWEEN_REQUESTS = 2  # in seconds
@@ -83,7 +89,7 @@ def filter_entries(last_hour_entries):
 def main():
     german_tz = pytz.timezone("Europe/Berlin")
     now = datetime.now(german_tz)
-    one_hour_ago = now - timedelta(hours=1)
+    one_hour_ago = now - timedelta(hours=12)
 
     last_hour_entries = []
 
@@ -95,9 +101,25 @@ def main():
 
     last_hour_entries = filter_entries(last_hour_entries)
 
+    db = firestore.client()
+    collection_ref = db.collection('news_articles')  # Using a consistent collection name
+
     for entry in last_hour_entries:
         link = entry.link
         title = entry.title
+
+        # Check if the entry already exists in Firestore
+        docs = collection_ref.where('link', '==', link).stream()
+        if any(doc for doc in docs):
+            # Skip this entry if it already exists
+            continue
+
+        # Otherwise, store the entry in Firestore
+        collection_ref.add({
+            'title': title,
+            'link': link
+        })
+
         description = entry.description
         source = link.split('/')[2]
         message = f"<strong>{title}</strong>\n" \
