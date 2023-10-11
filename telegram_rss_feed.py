@@ -90,7 +90,7 @@ def filter_entries(last_hour_entries):
 def main():
     german_tz = pytz.timezone("Europe/Berlin")
     now = datetime.now(german_tz)
-    one_hour_ago = now - timedelta(hours=12)
+    one_hour_ago = now - timedelta(hours=48)
 
     last_hour_entries = []
 
