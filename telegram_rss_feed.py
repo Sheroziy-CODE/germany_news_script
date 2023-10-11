@@ -26,7 +26,7 @@ FEED_URLS="https://www.berlin.de/en/news/rubric.rss," \
           "https://www.deutschland.de/en/feed-news/rss.xml"
 
 TELEGRAM_BOT_TOKEN = sys.argv[1]
-TELEGRAM_CHANNEL_ID = "@sheroziy_test"
+TELEGRAM_CHANNEL_ID = sys.argv[2]
 RSS_FEED_URLS = FEED_URLS.split(',')
 
 DELAY_BETWEEN_REQUESTS = 2  # in seconds
@@ -90,7 +90,7 @@ def filter_entries(last_hour_entries):
 def main():
     german_tz = pytz.timezone("Europe/Berlin")
     now = datetime.now(german_tz)
-    one_hour_ago = now - timedelta(hours=48)
+    one_hour_ago = now - timedelta(hours=1)
 
     last_hour_entries = []
 
