@@ -7,6 +7,13 @@ import time
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 import logging
+import firebase_admin
+from firebase_admin import credentials, firestore
+from google.cloud.firestore_v1.base_query import FieldFilter
+
+# Initialize Firebase
+cred = credentials.Certificate('german-news-script-firebase-adminsdk.json')
+firebase_admin.initialize_app(cred)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -95,9 +102,26 @@ def main():
 
     last_hour_entries = filter_entries(last_hour_entries)
 
+    db = firestore.client()
+    collection_ref = db.collection('news_articles')  # Using a consistent collection name
+
     for entry in last_hour_entries:
         link = entry.link
         title = entry.title
+
+        # Check if the entry already exists in Firestore
+        filter_condition = FieldFilter('link', '==', link)
+        docs = collection_ref.where(filter=filter_condition).stream()
+        if any(doc for doc in docs):
+            logging.info(f"Duplicate found for entry: {title} with link {link}")
+            continue
+
+        # Otherwise, store the entry in Firestore
+        collection_ref.add({
+            'title': title,
+            'link': link
+        })
+
         description = entry.description
         source = link.split('/')[2]
         message = f"<strong>{title}</strong>\n" \
