@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 import logging
 import firebase_admin
 from firebase_admin import credentials, firestore
+from google.cloud.firestore_v1.base_query import FieldFilter
 
 # Initialize Firebase
 cred = credentials.Certificate('german-news-script-firebase-adminsdk.json')
@@ -109,9 +110,10 @@ def main():
         title = entry.title
 
         # Check if the entry already exists in Firestore
-        docs = collection_ref.where('link', '==', link).stream()
+        filter_condition = FieldFilter('link', '==', link)
+        docs = collection_ref.where(filter=filter_condition).stream()
         if any(doc for doc in docs):
-            logging.info(f"Duplicate detected for the link: {link}. Skipping...")
+            logging.info(f"Duplicate found for entry: {title} with link {link}")
             continue
 
         # Otherwise, store the entry in Firestore
