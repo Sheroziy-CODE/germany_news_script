@@ -111,7 +111,7 @@ def main():
         # Check if the entry already exists in Firestore
         docs = collection_ref.where('link', '==', link).stream()
         if any(doc for doc in docs):
-            # Skip this entry if it already exists
+            logging.info(f"Duplicate detected for the link: {link}. Skipping...")
             continue
 
         # Otherwise, store the entry in Firestore
