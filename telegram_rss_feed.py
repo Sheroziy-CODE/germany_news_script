@@ -127,7 +127,8 @@ def main():
         message = f"<strong>{title}</strong>\n" \
                   f"\n{description}" \
                   f"\n\nSource: {source}" \
-                  f"\n\n<a href='{link}'>READ HERE</a>"
+                  f"\n\n<a href='{link}'>READ MORE</a>" \
+                  f"\n\n<a href='https://t.me/germany_english_news'>SUBSCRIBE</a> - Germany Daily News\n"
         extract_image_url(message, link)
         time.sleep(DELAY_BETWEEN_REQUESTS)
 
