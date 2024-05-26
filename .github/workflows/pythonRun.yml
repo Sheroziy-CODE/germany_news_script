@@ -1,9 +1,9 @@
 
-name: Run Python Script each 60 mins
+name: Run Python Script each 30 mins
 
 on:
   schedule:
-    - cron: "*/60 * * * *"
+    - cron: "*/30 * * * *"
 
 permissions:
   contents: read
