@@ -90,7 +90,7 @@ def filter_entries(last_hour_entries):
 def main():
     german_tz = pytz.timezone("Europe/Berlin")
     now = datetime.now(german_tz)
-    one_hour_ago = now - timedelta(hours=1)
+    three_hour_ago = now - timedelta(hours=3)
 
     last_hour_entries = []
 
@@ -98,7 +98,7 @@ def main():
         last_hour_entries.extend(get_feed_entries(rss_feed_url))
 
     last_hour_entries = [entry for entry in last_hour_entries if
-                         one_hour_ago <= datetime(*entry.published_parsed[:6], tzinfo=pytz.utc).astimezone(german_tz) <= now]
+                         three_hour_ago <= datetime(*entry.published_parsed[:6], tzinfo=pytz.utc).astimezone(german_tz) <= now]
 
     last_hour_entries = filter_entries(last_hour_entries)
 
